@@ -44,7 +44,7 @@
         if ([ignoredCodingPropertyNames containsObject:property.name]) return;
         
         // fixed `-[NSKeyedUnarchiver validateAllowedClass:forKey:] allowed unarchiving safe plist type ''NSNumber'(This will be disallowed in the future.)` warning.
-        Class genericClass = [property objectClassInArrayForClass:property.srcClass];
+        Class genericClass = [property objectClassInArrayForClass:[self class]];
         // If genericClass exists, property.type.typeClass would be a collection type(Array, Set, Dictionary). This scenario([obj, nil, obj, nil]) would not happened.
         NSSet *classes = [NSSet setWithObjects:NSNumber.class,
                           property.type.typeClass, genericClass, nil];

@@ -21,6 +21,7 @@
 #import "MJCat.h"
 #import <MJExtensionTests-Swift.h>
 #import "MJPerson.h"
+#import "MJWife.h"
 
 @interface MJExtensionTests : XCTestCase
 
@@ -494,6 +495,45 @@
     XCTAssert(decodedPerson.friends.count == 2);
     XCTAssert(decodedPerson.books.count == 2);
 }
+
+- (void)testCodingModelArrayPropertyInInherit {
+    // 有 NSArray 属性 模型
+    MJWife *wife = [[MJWife alloc] init];
+    wife.name = @"Rose";
+    wife.weight = 66.0;
+    
+    MJBag *bag1 = [[MJBag alloc] init];
+    bag1.name = @"小书包1";
+    bag1.price = 205;
+    
+    MJBag *bag2 = [[MJBag alloc] init];
+    bag2.name = @"小书包2";
+    bag2.price = 205;
+
+    wife.books = @[@"book1", @"book2"];
+    wife.bags = @[bag1, bag2];
+    
+    NSString *file = [NSTemporaryDirectory() stringByAppendingPathComponent:@"wife.data"];
+    NSError *error = nil;
+    // 归档
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:wife
+                                         requiringSecureCoding:YES
+                                                         error:&error];
+    XCTAssert(!error);
+    BOOL write = [data writeToFile:file atomically:true];
+    XCTAssert(write);
+
+    // 解档
+    NSData *readData = [NSFileManager.defaultManager contentsAtPath:file];
+    error = nil;
+    MJWife *decodedWife = [NSKeyedUnarchiver unarchivedObjectOfClass:[MJWife class]
+                                                                  fromData:readData
+                                                                     error:&error];
+    XCTAssert(!error);
+    XCTAssert(decodedWife.books.count == 2);
+    XCTAssert(decodedWife.bags.count == 2);
+}
+
 
 #pragma mark  统一转换属性名（比如驼峰转下划线）
 - (void)testReplacedKeyFromPropertyName121 {
